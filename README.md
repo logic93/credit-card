@@ -11,11 +11,12 @@ To get started, please read the instructions carefully and follow the steps outl
 Remember, this is your chance to showcase your skills and impress us with your work. We hope you enjoy this assignment and look forward to seeing your submission. Good luck!
 
 ## Instructions
+
 The assignments are designed to run on StackBlitz, but you are of course allowed to run them locally in your favourite editor.
 
 1. Read this README in full.
 2. Fork this repository to your own Github account.
-2. Click the "Get Started" button at the top of this README to open it in StackBlitz.
+3. Click the "Get Started" button at the top of this README to open it in StackBlitz.
 4. Either use StackBlitz or work locally on your fork. The assignments are located in the `algorithms` and `credit-card` directories.
 5. When you're ready to submit, run `npm run submit` and follow the instructions prompted.
 
@@ -27,9 +28,10 @@ This part is meant to test your general Typescript skills.
 There's no need for any graphical elements in this part - focus on the functions themselves.
 
 Make sure you:
-* 🧪 Include tests!
-* ⚡ Consider performance versus readability
-* 🚫 Don't modify input and return types.
+
+-   🧪 Include tests!
+-   ⚡ Consider performance versus readability
+-   🚫 Don't modify input and return types.
 
 You can find the assignments in `/src/algorithms/README.md`
 
@@ -42,8 +44,9 @@ The assignment is to create a credit card form component that can be dropped in 
 You can assume that the payment endpoint expects a `POST` request at `/api/payments` and that the credit card information will be received without any sort of encryption or obfuscation.
 
 Make sure you:
-* 🧪 Include tests!
-* 🤔 Consider what can be validated/detected without making a request to the payment server.
-* 💥 Focus on the user experience from a functionality point of view.
+
+-   🧪 Include tests!
+-   🤔 Consider what can be validated/detected without making a request to the payment server.
+-   💥 Focus on the user experience from a functionality point of view.
 
 You can find the assignments in `/src/credit-card/README.md`

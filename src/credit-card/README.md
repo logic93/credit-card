@@ -7,10 +7,10 @@ The assignment is to create a credit card form component that can be dropped in 
 You can assume that the payment endpoint expects a `POST` request at `/api/payments` and that the credit card information will be received without any sort of encryption or obfuscation.
 
 Make sure you:
-* 🧪 Include tests!
-* 🤔 Consider what can be validated/detected without making a request to the payment server.
-* 💥 Focus on the user experience from a functionality point of view.
 
+-   🧪 Include tests!
+-   🤔 Consider what can be validated/detected without making a request to the payment server.
+-   💥 Focus on the user experience from a functionality point of view.
 
 Here is some inspiration in case you need it!
 ![](inspiration.gif)
