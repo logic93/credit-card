@@ -1,11 +1,13 @@
-import { useState } from 'react'
 import CreditCard from './credit-card/CreditCard'
+import { FocusProvider } from './credit-card/components/FocusContext'
 
 const App = () => {
     return (
-        <div className="App">
-            <CreditCard />
-        </div>
+        <FocusProvider>
+            <div className="App">
+                <CreditCard $style={{ margin: 'auto' }} />
+            </div>
+        </FocusProvider>
     )
 }
 
