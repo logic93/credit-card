@@ -26,6 +26,10 @@ const CardInfo = styled.div<{ $style?: any }>`
     transition: transform 600ms ease;
     transform-style: preserve-3d;
     ${({ $style }) => $style && css($style)}
+
+    @media (max-width: 375px) {
+        padding: 0;
+    }
 `
 
 const CardItem = styled.div`
@@ -187,7 +191,7 @@ const Card: React.FC<CreditCardProps> = ({
                 }}
             >
                 <Front>
-                    <Chip src="chip2.png" alt="chip" />
+                    <Chip src="chip.svg" alt="chip" />
                     <Issuer src="visa.svg" alt="issuer" />
                     <CardNumber>{unmaskedCardNumber}</CardNumber>
                     <CardHolder>{updatedCardHolder}</CardHolder>

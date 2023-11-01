@@ -17,7 +17,10 @@ const initialState: CreditCardProps = {
     validThru: '',
 }
 
-const CreditCard: React.FC<{ $style?: any }> = ({ $style }) => {
+const CreditCard: React.FC<{
+    $style?: any
+    $cardFormStyle?: any
+}> = ({ $style, $cardFormStyle }) => {
     const [state, setState] = useState<CreditCardProps>(initialState)
 
     const updateCardNumber = (value: string): string => {
@@ -67,6 +70,7 @@ const CreditCard: React.FC<{ $style?: any }> = ({ $style }) => {
             />
 
             <CardForm
+                $cardFormStyle={$cardFormStyle}
                 creditCardDetails={state}
                 onUpdateState={updateStateValues}
             />

@@ -1,28 +1,33 @@
 import { CreditCardProps } from '../types/types'
 import React, { ChangeEvent } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useFocus } from './FocusContext'
 
-const CardFormWrapper = styled.div`
+const CardFormWrapper = styled.div<{ $style: any }>`
     background-color: #fff;
     border-radius: 4px;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     display: flex;
     flex-direction: column;
-    margin: 2em 0 0 0;
+    margin: 1em 0 0 0;
     padding: calc(28px + 1em) 1em 1em;
+    ${({ $style }) => $style && css($style)}
+
+    @media (max-width: 550px) {
+        width: unset;
+        align-self: auto;
+        margin: 1em;
+    }
 `
 
 const Form = styled.form`
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
 `
 
 const Label = styled.label<{ $noMargin?: boolean }>`
     display: flex;
     flex-direction: column;
-    flex: 1;
     margin: ${({ $noMargin }) => ($noMargin ? '0' : '0 0 3em 0')};
     position: relative;
 `
@@ -38,7 +43,7 @@ const Span = styled.span`
 
 const Input = styled.input`
     background: transparent;
-    border-radius: 4px;
+    border-radius: 2px;
     border: 1px solid #d3d3d3;
     color: #000;
     font-size: 20px;
@@ -61,8 +66,14 @@ const BottomInputs = styled.div`
     column-gap: 1em;
     display: flex;
     flex-direction: row;
-    flex: 1;
     margin: 0 0 2em 0;
+    position: relative;
+
+    ${Label} {
+        width: 100%;
+        overflow: auto;
+        position: static;
+    }
 `
 
 const Button = styled.input`
@@ -87,8 +98,12 @@ type CardFormProps = {
     onUpdateState: (key: string, value: string) => void
 }
 
-const CardForm: React.FC<CardFormProps> = (props) => {
-    const { onUpdateState, creditCardDetails } = props
+interface CardFormInterface extends CardFormProps {
+    $cardFormStyle?: any
+}
+
+const CardForm: React.FC<CardFormInterface> = (props) => {
+    const { onUpdateState, creditCardDetails, $cardFormStyle } = props
     const { setFocus } = useFocus()
 
     const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +113,7 @@ const CardForm: React.FC<CardFormProps> = (props) => {
     }
 
     return (
-        <CardFormWrapper>
+        <CardFormWrapper $style={$cardFormStyle}>
             <Form action="/post/payment" method="post">
                 <Label htmlFor="cardHolder">
                     <Input
