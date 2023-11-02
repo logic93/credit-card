@@ -1,8 +1,9 @@
-import { CreditCardProps } from './types/types'
+import { useCallback, useState } from 'react'
+import styled, { css } from 'styled-components'
+import creditCardType, { types as CardType } from 'credit-card-type'
+import { ICreditCard } from './types'
 import Card from './components/Card'
 import CardForm from './components/CardForm'
-import React, { useCallback, useState } from 'react'
-import styled, { css } from 'styled-components'
 
 const Wrapper = styled.div<{ $style?: any }>`
     display: flex;
@@ -10,69 +11,134 @@ const Wrapper = styled.div<{ $style?: any }>`
     ${({ $style }) => $style && css($style)}
 `
 
-const initialState: CreditCardProps = {
+const initialCreditCardState: ICreditCard = {
     cardCvv: '',
     cardHolder: '',
     cardNumber: '',
     validThru: '',
 }
 
-const CreditCard: React.FC<{
+interface CreditCardProps {
     $style?: any
     $cardFormStyle?: any
-}> = ({ $style, $cardFormStyle }) => {
-    const [state, setState] = useState<CreditCardProps>(initialState)
+}
+
+const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
+    const [creditCardDetails, setCreditCardDetails] = useState<ICreditCard>(
+        initialCreditCardState
+    )
+    const [selectedCreditCardType, setSelectedCreditCardType] =
+        useState<any>(null)
+    const [maskedCardNumber, setMaskedCardNumber] = useState<string>(
+        '**** **** **** ****'
+    )
 
     const updateCardNumber = (value: string): string => {
-        const input = value.replace(/[^0-9]/g, '')
-        let formattedCardNumber = ''
+        let sanitizedInput = value.replace(/[^0-9]/g, '')
+        const foundCreditCardTypes = creditCardType(sanitizedInput)
+        const defaultGaps = [4, 8, 12]
 
-        for (let i = 0; i < input.length; i += 4) {
-            formattedCardNumber += input.slice(i, i + 4) + ' '
+        const allowedCreditCardTypes = [
+            CardType.VISA,
+            CardType.MASTERCARD,
+            CardType.AMERICAN_EXPRESS,
+            CardType.MAESTRO,
+        ]
+
+        if (
+            foundCreditCardTypes.length === 1 &&
+            // @ts-ignore: ts(2345)
+            allowedCreditCardTypes.includes(foundCreditCardTypes[0]?.type)
+        ) {
+            const creditCardType = foundCreditCardTypes[0]
+            const gapPositions = creditCardType?.gaps || defaultGaps
+            const lastIndex =
+                creditCardType?.lengths[creditCardType?.lengths.length - 1]
+            let masked = '*'.repeat(creditCardType?.lengths[0])
+
+            if (sanitizedInput.length > creditCardType?.lengths[0]) {
+                masked = '*'.repeat(lastIndex)
+            }
+
+            gapPositions.forEach((position, index) => {
+                if (position <= sanitizedInput.length) {
+                    sanitizedInput =
+                        sanitizedInput.slice(0, position + index) +
+                        ' ' +
+                        sanitizedInput.slice(position + index)
+                }
+
+                masked =
+                    masked.slice(0, position + index) +
+                    ' ' +
+                    masked.slice(position + index)
+            })
+
+            setSelectedCreditCardType(creditCardType)
+            setMaskedCardNumber(masked)
+        } else {
+            defaultGaps.forEach((position, index) => {
+                if (position <= sanitizedInput.length) {
+                    sanitizedInput =
+                        sanitizedInput.slice(0, position + index) +
+                        ' ' +
+                        sanitizedInput.slice(position + index)
+                }
+            })
         }
 
-        return formattedCardNumber.trim()
+        if (!sanitizedInput || !foundCreditCardTypes.length) {
+            setSelectedCreditCardType(null)
+            setMaskedCardNumber('**** **** **** ****')
+        }
+
+        return sanitizedInput.trim()
     }
 
     const updateValidThru = (value: string): string => {
-        const input = value.replace(/\D/g, '')
-        const formattedValidThru = input
+        const sanitizedInput = value.replace(/\D/g, '')
+        const formattedValidThru = sanitizedInput
             .slice(0, 4)
             .replace(/(\d{2})(\d{2})/, '$1/$2')
 
         return formattedValidThru.trim()
     }
 
-    const updateStateValues = useCallback(
-        (keyName: string, value: string) => {
-            const updatedState = { ...state, [keyName]: value || '' }
-
-            if (keyName === 'cardNumber') {
-                updatedState['cardNumber'] = updateCardNumber(value) || ''
+    const updateCreditCardDetails = useCallback(
+        (fieldName: string, value: string) => {
+            const updatedCreditCardDetails = {
+                ...creditCardDetails,
+                [fieldName]: value || '',
             }
 
-            if (keyName === 'validThru') {
-                updatedState['validThru'] = updateValidThru(value) || ''
+            if (fieldName === 'cardNumber') {
+                updatedCreditCardDetails['cardNumber'] =
+                    updateCardNumber(value) || ''
             }
 
-            setState(updatedState)
+            if (fieldName === 'validThru') {
+                updatedCreditCardDetails['validThru'] =
+                    updateValidThru(value) || ''
+            }
+
+            setCreditCardDetails(updatedCreditCardDetails)
         },
-        [state]
+        [creditCardDetails]
     )
 
     return (
         <Wrapper $style={$style}>
             <Card
-                cardCvv={state.cardCvv}
-                cardHolder={state.cardHolder}
-                cardNumber={state.cardNumber}
-                validThru={state.validThru}
+                creditCardDetails={creditCardDetails}
+                creditCardType={selectedCreditCardType}
+                maskedCardNumber={maskedCardNumber}
             />
 
             <CardForm
                 $cardFormStyle={$cardFormStyle}
-                creditCardDetails={state}
-                onUpdateState={updateStateValues}
+                creditCardDetails={creditCardDetails}
+                onUpdateCreditCardDetails={updateCreditCardDetails}
+                creditCardType={selectedCreditCardType}
             />
         </Wrapper>
     )

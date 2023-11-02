@@ -1,21 +1,20 @@
-import React from 'react'
 import styled, { css } from 'styled-components'
-import { CreditCardProps } from '../types/types'
-import { useFocus } from './FocusContext'
+import { useFocus } from '../context/FocusContext'
+import { ICreditCard } from '../types'
 
-const CardWrapper = styled.div`
+const CardWrapper = styled.div<{ $style?: any }>`
     background: transparent;
     align-self: center;
     border-radius: 8px;
-    color: #d3d3d3;
     display: flex;
     flex-direction: row;
-    font-family: 'OCRB';
+    font-family: 'OCR B';
     font-size: 20px;
     perspective: 1000px;
+    color: #fff;
 `
 
-const CardInfo = styled.div<{ $style?: any }>`
+const CardInfo = styled.div<{ $cardInfoStyle?: any }>`
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -23,19 +22,22 @@ const CardInfo = styled.div<{ $style?: any }>`
     width: 310px;
     height: 185px;
     padding: 1em 1.3em;
-    transition: transform 600ms ease;
+    transition:
+        600ms ease transform,
+        0.3s linear background,
+        0.3s linear color;
     transform-style: preserve-3d;
-    ${({ $style }) => $style && css($style)}
+    ${({ $cardInfoStyle }) => $cardInfoStyle && css($cardInfoStyle)}
 
     @media (max-width: 375px) {
         padding: 0;
     }
 `
 
-const CardItem = styled.div`
+const CardItem = styled.div<{ $cardItemStyle?: any }>`
     width: 100%;
     height: 100%;
-    background-color: #000;
+    background: #343434;
     position: absolute;
     top: 0;
     left: 0;
@@ -44,33 +46,32 @@ const CardItem = styled.div`
     z-index: 1;
     backface-visibility: hidden;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    ${({ $cardItemStyle }) => $cardItemStyle && css($cardItemStyle)}
 `
 
 const Front = styled(CardItem)`
-    transition: transform 300ms ease-in-out;
+    transition: 300ms ease-in-out transform;
 `
 
 const Back = styled(CardItem)`
     transform: rotateY(180deg);
 `
 
-const TopImage = styled.img`
-    height: 32px;
+const Chip = styled.img`
     position: absolute;
     top: 1em;
-`
-
-const Chip = styled(TopImage)`
+    height: 32px;
     left: 1.3em;
 `
 
-const Issuer = styled(TopImage)`
+const Issuer = styled.img`
+    position: absolute;
+    top: 1em;
+    height: 42px;
     right: 1.3em;
 `
 
 const CardNumber = styled.div`
-    font-size: 23.41px;
-    letter-spacing: 2px;
     position: absolute;
     bottom: 3em;
     left: 0;
@@ -101,7 +102,7 @@ const Cvv = styled.div`
     position: absolute;
     bottom: 20px;
     right: 20px;
-    color: #000;
+    color: #343434;
     font-size: 16px;
 `
 
@@ -137,7 +138,7 @@ const CvvBackground = styled.div`
 `
 
 const MagneticStripe = styled.div`
-    background-color: #2a1d16;
+    background-color: #000;
     height: 22%;
     left: 0;
     position: absolute;
@@ -145,12 +146,17 @@ const MagneticStripe = styled.div`
     width: 100%;
 `
 
-const Card: React.FC<CreditCardProps> = ({
-    cardCvv,
-    cardHolder,
-    cardNumber,
-    validThru,
-}) => {
+interface CardProps {
+    creditCardDetails: ICreditCard
+    creditCardType?: any
+    maskedCardNumber: string
+}
+
+const Card = ({
+    creditCardType,
+    maskedCardNumber,
+    creditCardDetails,
+}: CardProps) => {
     const { isInputFocused } = useFocus()
 
     const unmask = (maskedValue: string, input: string): string => {
@@ -162,12 +168,18 @@ const Card: React.FC<CreditCardProps> = ({
         )
     }
 
-    const maskedCardNumber = '**** **** **** ****'
     const maskedValidThru = '**/**'
-    const maskedCvv = '****'
-    const unmaskedCardNumber = unmask(maskedCardNumber, cardNumber)
-    const unmaskedValidThru = unmask(maskedValidThru, validThru)
-    const unmaskedCvv = unmask(maskedCvv, cardCvv)
+    const maskedCvv = '*'.repeat(creditCardType?.code?.size || 3)
+
+    const unmaskedCardNumber = unmask(
+        maskedCardNumber,
+        creditCardDetails.cardNumber
+    )
+    const unmaskedValidThru = unmask(
+        maskedValidThru,
+        creditCardDetails.validThru
+    )
+    const unmaskedCvv = unmask(maskedCvv, creditCardDetails.cardCvv)
 
     function replacePlaceholderWithText(
         placeholder: string,
@@ -180,19 +192,31 @@ const Card: React.FC<CreditCardProps> = ({
 
     const updatedCardHolder = replacePlaceholderWithText(
         'YOUR NAME HERE',
-        cardHolder
+        creditCardDetails.cardHolder
     )
 
     return (
         <CardWrapper>
             <CardInfo
-                $style={{
+                $cardInfoStyle={{
                     transform: isInputFocused ? 'rotateY(-180deg)' : null,
+                    color: creditCardType?.type && '#343434',
                 }}
             >
-                <Front>
+                <Front
+                    $cardItemStyle={{
+                        background:
+                            creditCardType?.type &&
+                            'linear-gradient(25deg, #FFF, #eee)',
+                    }}
+                >
                     <Chip src="chip.svg" alt="chip" />
-                    <Issuer src="visa.svg" alt="issuer" />
+                    {creditCardType?.type && (
+                        <Issuer
+                            src={`${creditCardType?.type}.svg`}
+                            alt="issuer"
+                        />
+                    )}
                     <CardNumber>{unmaskedCardNumber}</CardNumber>
                     <CardHolder>{updatedCardHolder}</CardHolder>
                     <ValidThru>{unmaskedValidThru}</ValidThru>
@@ -201,7 +225,9 @@ const Card: React.FC<CreditCardProps> = ({
                 <Back>
                     <CvvBackground>
                         <MagneticStripe />
-                        <CvvLabel>Cvv</CvvLabel>
+                        <CvvLabel>
+                            {creditCardType?.code?.name || 'CVV'}
+                        </CvvLabel>
                         <Cvv>{unmaskedCvv}</Cvv>
                     </CvvBackground>
                 </Back>

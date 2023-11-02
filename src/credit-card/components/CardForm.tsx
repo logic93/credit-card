@@ -1,7 +1,7 @@
-import { CreditCardProps } from '../types/types'
-import React, { ChangeEvent } from 'react'
+import { ChangeEvent } from 'react'
 import styled, { css } from 'styled-components'
-import { useFocus } from './FocusContext'
+import { useFocus } from '../context/FocusContext'
+import { ICreditCard } from '../types'
 
 const CardFormWrapper = styled.div<{ $style: any }>`
     background-color: #fff;
@@ -9,7 +9,7 @@ const CardFormWrapper = styled.div<{ $style: any }>`
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     display: flex;
     flex-direction: column;
-    margin: 1em 0 0 0;
+    margin: 2em 0 0 0;
     padding: calc(28px + 1em) 1em 1em;
     ${({ $style }) => $style && css($style)}
 
@@ -28,12 +28,12 @@ const Form = styled.form`
 const Label = styled.label<{ $noMargin?: boolean }>`
     display: flex;
     flex-direction: column;
-    margin: ${({ $noMargin }) => ($noMargin ? '0' : '0 0 3em 0')};
+    margin: ${({ $noMargin }) => ($noMargin ? 0 : '0 0 3em 0')};
     position: relative;
 `
 
 const Span = styled.span`
-    color: #d3d3d3;
+    color: #c0c0c0;
     display: block;
     font-weight: bold;
     position: absolute;
@@ -44,8 +44,8 @@ const Span = styled.span`
 const Input = styled.input`
     background: transparent;
     border-radius: 2px;
-    border: 1px solid #d3d3d3;
-    color: #000;
+    border: 1px solid #c0c0c0;
+    color: #343434;
     font-size: 20px;
     height: 3em;
     outline: none;
@@ -54,11 +54,11 @@ const Input = styled.input`
     text-transform: capitalize;
 
     &:focus {
-        border: 1px solid #000;
+        border: 1px solid #343434;
     }
 
     &:focus + ${Span} {
-        color: #000;
+        color: #343434;
     }
 `
 
@@ -77,7 +77,7 @@ const BottomInputs = styled.div`
 `
 
 const Button = styled.input`
-    background-color: #d3d3d3;
+    background-color: #c0c0c0;
     color: #fff;
     height: 40px;
     border: none;
@@ -89,27 +89,28 @@ const Button = styled.input`
 
     &:hover,
     &:focus {
-        background-color: #000;
+        background-color: #343434;
     }
 `
 
-type CardFormProps = {
-    creditCardDetails: CreditCardProps
-    onUpdateState: (key: string, value: string) => void
-}
-
-interface CardFormInterface extends CardFormProps {
+interface CardFormProps {
     $cardFormStyle?: any
+    creditCardDetails: ICreditCard
+    creditCardType?: any
+    onUpdateCreditCardDetails: (key: string, value: string) => void
 }
 
-const CardForm: React.FC<CardFormInterface> = (props) => {
-    const { onUpdateState, creditCardDetails, $cardFormStyle } = props
+const CardForm = ({
+    $cardFormStyle,
+    creditCardDetails,
+    creditCardType,
+    onUpdateCreditCardDetails,
+}: CardFormProps) => {
     const { setFocus } = useFocus()
 
     const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target
-
-        onUpdateState(name, value)
+        onUpdateCreditCardDetails(name, value)
     }
 
     return (
@@ -130,7 +131,13 @@ const CardForm: React.FC<CardFormInterface> = (props) => {
                     <Input
                         autoComplete="off"
                         id="cardNumber"
-                        maxLength={19}
+                        maxLength={
+                            creditCardType
+                                ? creditCardType?.lengths[
+                                      creditCardType?.lengths.length - 1
+                                  ] + creditCardType?.gaps.length
+                                : 19
+                        }
                         name="cardNumber"
                         onChange={handleFormChange}
                         type="text"
@@ -162,7 +169,7 @@ const CardForm: React.FC<CardFormInterface> = (props) => {
                             onFocus={() => setFocus(true)}
                             onBlur={() => setFocus(false)}
                         />
-                        <Span>CVV</Span>
+                        <Span>{creditCardType?.code?.name || 'CVV'}</Span>
                     </Label>
                 </BottomInputs>
 
