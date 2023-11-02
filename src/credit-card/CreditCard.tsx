@@ -35,17 +35,17 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
         '**** **** **** ****'
     )
 
+    const allowedCreditCardTypes = [
+        CardType.VISA,
+        CardType.MASTERCARD,
+        CardType.AMERICAN_EXPRESS,
+        CardType.MAESTRO,
+    ]
+
     const updateCardNumber = (value: string): string => {
         let cardNumberInput = value.replace(/[^0-9]/g, '')
         const foundCreditCardTypes = creditCardType(cardNumberInput)
         const defaultGaps = [4, 8, 12]
-
-        const allowedCreditCardTypes = [
-            CardType.VISA,
-            CardType.MASTERCARD,
-            CardType.AMERICAN_EXPRESS,
-            CardType.MAESTRO,
-        ]
 
         if (
             foundCreditCardTypes.length === 1 &&
@@ -99,11 +99,12 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
 
     const updateValidThru = (value: string): string => {
         const validThruInput = value.replace(/\D/g, '')
-        const formattedValidThru = validThruInput
-            .slice(0, 4)
-            .replace(/(\d{2})(\d{2})/, '$1/$2')
 
-        return formattedValidThru.trim()
+        if (validThruInput.length > 2) {
+            return validThruInput.slice(0, 2) + '/' + validThruInput.slice(2)
+        }
+
+        return validThruInput
     }
 
     const updateCardCvv = (value: string): string => {
