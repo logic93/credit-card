@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { useFocus } from '../context/FocusContext'
 import { ICreditCard } from '../types'
@@ -16,7 +16,7 @@ const CardFormWrapper = styled.div<{ $style: any }>`
     @media (max-width: 550px) {
         width: unset;
         align-self: auto;
-        margin: 1em;
+        margin: 2em;
     }
 `
 
@@ -33,7 +33,7 @@ const Label = styled.label<{ $noMargin?: boolean }>`
 `
 
 const Span = styled.span`
-    color: #c0c0c0;
+    color: #a4a4a4;
     display: block;
     font-weight: bold;
     position: absolute;
@@ -44,7 +44,7 @@ const Span = styled.span`
 const Input = styled.input`
     background: transparent;
     border-radius: 2px;
-    border: 1px solid #c0c0c0;
+    border: 1px solid #a4a4a4;
     color: #343434;
     font-size: 20px;
     height: 3em;
@@ -76,20 +76,22 @@ const BottomInputs = styled.div`
     }
 `
 
-const Button = styled.input`
-    background-color: #c0c0c0;
+const Button = styled.button`
+    background-color: #343434;
     color: #fff;
     height: 40px;
     border: none;
     border-radius: 4px;
-    cursor: pointer;
     font-size: 1em;
     transition: 0.3s ease all;
     outline: none;
 
-    &:hover,
-    &:focus {
-        background-color: #343434;
+    &:disabled {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    &:hover:not([disabled]) {
+        cursor: pointer;
     }
 `
 
@@ -97,6 +99,7 @@ interface CardFormProps {
     $cardFormStyle?: any
     creditCardDetails: ICreditCard
     creditCardType?: any
+    isFormValid: boolean
     onUpdateCreditCardDetails: (key: string, value: string) => void
 }
 
@@ -104,6 +107,7 @@ const CardForm = ({
     $cardFormStyle,
     creditCardDetails,
     creditCardType,
+    isFormValid,
     onUpdateCreditCardDetails,
 }: CardFormProps) => {
     const { setFocus } = useFocus()
@@ -116,6 +120,13 @@ const CardForm = ({
     return (
         <CardFormWrapper $style={$cardFormStyle}>
             <Form action="/post/payment" method="post">
+                <input
+                    hidden
+                    id="cardIssuer"
+                    name="cardIssuer"
+                    type="text"
+                    value={creditCardDetails.cardIssuer}
+                />
                 <Label htmlFor="cardHolder">
                     <Input
                         id="cardHolder"
@@ -165,7 +176,7 @@ const CardForm = ({
                             onChange={handleFormChange}
                             type="text"
                             value={creditCardDetails.cardCvv}
-                            maxLength={4}
+                            maxLength={creditCardType?.code?.size || 3}
                             onFocus={() => setFocus(true)}
                             onBlur={() => setFocus(false)}
                         />
@@ -173,7 +184,9 @@ const CardForm = ({
                     </Label>
                 </BottomInputs>
 
-                <Button type="submit" value="Pay" />
+                <Button type="submit" disabled={!isFormValid}>
+                    Pay
+                </Button>
             </Form>
         </CardFormWrapper>
     )

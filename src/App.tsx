@@ -6,7 +6,7 @@ const App = () => (
         <div className="App">
             <CreditCard
                 $style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    backgroundColor: '#F4F4F4',
                     justifyContent: 'center',
                     height: '100%',
                 }}

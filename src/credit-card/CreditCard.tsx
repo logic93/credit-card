@@ -14,6 +14,7 @@ const Wrapper = styled.div<{ $style?: any }>`
 const initialCreditCardState: ICreditCard = {
     cardCvv: '',
     cardHolder: '',
+    cardIssuer: '',
     cardNumber: '',
     validThru: '',
 }
@@ -29,13 +30,14 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
     )
     const [selectedCreditCardType, setSelectedCreditCardType] =
         useState<any>(null)
+    const [isFormValid, setIsFormValid] = useState<boolean>(false)
     const [maskedCardNumber, setMaskedCardNumber] = useState<string>(
         '**** **** **** ****'
     )
 
     const updateCardNumber = (value: string): string => {
-        let sanitizedInput = value.replace(/[^0-9]/g, '')
-        const foundCreditCardTypes = creditCardType(sanitizedInput)
+        let cardNumberInput = value.replace(/[^0-9]/g, '')
+        const foundCreditCardTypes = creditCardType(cardNumberInput)
         const defaultGaps = [4, 8, 12]
 
         const allowedCreditCardTypes = [
@@ -56,16 +58,16 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
                 creditCardType?.lengths[creditCardType?.lengths.length - 1]
             let masked = '*'.repeat(creditCardType?.lengths[0])
 
-            if (sanitizedInput.length > creditCardType?.lengths[0]) {
+            if (cardNumberInput.length > creditCardType?.lengths[0]) {
                 masked = '*'.repeat(lastIndex)
             }
 
             gapPositions.forEach((position, index) => {
-                if (position <= sanitizedInput.length) {
-                    sanitizedInput =
-                        sanitizedInput.slice(0, position + index) +
+                if (position <= cardNumberInput.length) {
+                    cardNumberInput =
+                        cardNumberInput.slice(0, position + index) +
                         ' ' +
-                        sanitizedInput.slice(position + index)
+                        cardNumberInput.slice(position + index)
                 }
 
                 masked =
@@ -78,30 +80,41 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
             setMaskedCardNumber(masked)
         } else {
             defaultGaps.forEach((position, index) => {
-                if (position <= sanitizedInput.length) {
-                    sanitizedInput =
-                        sanitizedInput.slice(0, position + index) +
+                if (position <= cardNumberInput.length) {
+                    cardNumberInput =
+                        cardNumberInput.slice(0, position + index) +
                         ' ' +
-                        sanitizedInput.slice(position + index)
+                        cardNumberInput.slice(position + index)
                 }
             })
         }
 
-        if (!sanitizedInput || !foundCreditCardTypes.length) {
+        if (!cardNumberInput || !foundCreditCardTypes.length) {
             setSelectedCreditCardType(null)
             setMaskedCardNumber('**** **** **** ****')
         }
 
-        return sanitizedInput.trim()
+        return cardNumberInput.trim()
     }
 
     const updateValidThru = (value: string): string => {
-        const sanitizedInput = value.replace(/\D/g, '')
-        const formattedValidThru = sanitizedInput
+        const validThruInput = value.replace(/\D/g, '')
+        const formattedValidThru = validThruInput
             .slice(0, 4)
             .replace(/(\d{2})(\d{2})/, '$1/$2')
 
         return formattedValidThru.trim()
+    }
+
+    const updateCardCvv = (value: string): string => {
+        return value.replace(/[^0-9]/g, '')
+    }
+
+    const checkForm = (value: ICreditCard) => {
+        let isFormValid = Object.values(value).every(
+            (val) => val !== undefined && val !== null && val !== ''
+        )
+        setIsFormValid(isFormValid)
     }
 
     const updateCreditCardDetails = useCallback(
@@ -121,7 +134,15 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
                     updateValidThru(value) || ''
             }
 
+            if (fieldName === 'cardCvv') {
+                updatedCreditCardDetails['cardCvv'] = updateCardCvv(value) || ''
+            }
+
+            updatedCreditCardDetails['cardIssuer'] =
+                selectedCreditCardType?.type || ''
+
             setCreditCardDetails(updatedCreditCardDetails)
+            checkForm(updatedCreditCardDetails)
         },
         [creditCardDetails]
     )
@@ -139,6 +160,7 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
                 creditCardDetails={creditCardDetails}
                 onUpdateCreditCardDetails={updateCreditCardDetails}
                 creditCardType={selectedCreditCardType}
+                isFormValid={isFormValid}
             />
         </Wrapper>
     )
