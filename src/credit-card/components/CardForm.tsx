@@ -104,35 +104,35 @@ const CardForm = ({
             )
         } else {
             setValidationError('')
-        }
 
-        const form = e.currentTarget
-        const formData = new FormData(form)
+            const form = e.currentTarget
+            const formData = new FormData(form)
 
-        try {
-            const response = await fetch('/post/payment', {
-                method: 'post',
-                body: formData,
-            })
+            try {
+                const response = await fetch('/post/payment', {
+                    method: 'post',
+                    body: formData,
+                })
 
-            if (!response.ok) {
-                // Check if the response status is not in the 200-299 range (e.g., 404, 500)
-                throw new Error(
-                    `HTTP Error: ${response.status} - ${response.statusText}`
-                )
-            }
+                if (!response.ok) {
+                    // Check if the response status is not in the 200-299 range (e.g., 404, 500)
+                    throw new Error(
+                        `HTTP Error: ${response.status} - ${response.statusText}`
+                    )
+                }
 
-            const responseData = await response.json()
-            console.log('response', responseData)
-        } catch (error: any) {
-            if (error instanceof TypeError) {
-                console.error('Network error:', error.message)
-            } else {
-                console.error('Error:', error.message)
-            }
+                const responseData = await response.json()
+                console.log('response', responseData)
+            } catch (error: any) {
+                if (error instanceof TypeError) {
+                    console.error('Network error:', error.message)
+                } else {
+                    console.error('Error:', error.message)
+                }
 
-            if (!validationError) {
-                setNetworkError(error.message)
+                if (!validationError) {
+                    setNetworkError(error.message)
+                }
             }
         }
     }
