@@ -1,106 +1,25 @@
-import { ChangeEvent, useState } from 'react'
-import styled, { css } from 'styled-components'
-import { useFocus } from '../context/FocusContext'
+import { allowedCreditCardTypes } from '../utils'
+import {
+    BottomInputs,
+    Button,
+    CardFormWrapper,
+    ValidationError,
+    Form,
+    Input,
+    Label,
+    Span,
+} from './styles/card-form-styles'
+import { ChangeEvent, FormEvent, useState } from 'react'
 import { ICreditCard } from '../types'
-
-const CardFormWrapper = styled.div<{ $style: any }>`
-    background-color: #fff;
-    border-radius: 4px;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    display: flex;
-    flex-direction: column;
-    margin: 2em 0 0 0;
-    padding: calc(28px + 1em) 1em 1em;
-    ${({ $style }) => $style && css($style)}
-
-    @media (max-width: 550px) {
-        width: unset;
-        align-self: auto;
-        margin: 2em;
-    }
-`
-
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-`
-
-const Label = styled.label<{ $noMargin?: boolean }>`
-    display: flex;
-    flex-direction: column;
-    margin: ${({ $noMargin }) => ($noMargin ? 0 : '0 0 3em 0')};
-    position: relative;
-`
-
-const Span = styled.span`
-    color: #a4a4a4;
-    display: block;
-    font-weight: bold;
-    position: absolute;
-    top: -28px;
-    transition: 0.3s ease all;
-`
-
-const Input = styled.input`
-    background: transparent;
-    border-radius: 2px;
-    border: 1px solid #a4a4a4;
-    color: #343434;
-    font-size: 20px;
-    height: 3em;
-    outline: none;
-    padding: 0 0 0 12px;
-    transition: 0.3s ease all;
-    text-transform: capitalize;
-
-    &:focus {
-        border: 1px solid #343434;
-    }
-
-    &:focus + ${Span} {
-        color: #343434;
-    }
-`
-
-const BottomInputs = styled.div`
-    column-gap: 1em;
-    display: flex;
-    flex-direction: row;
-    margin: 0 0 2em 0;
-    position: relative;
-
-    ${Label} {
-        width: 100%;
-        overflow: auto;
-        position: static;
-    }
-`
-
-const Button = styled.button`
-    background-color: #343434;
-    color: #fff;
-    height: 40px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1em;
-    transition: 0.3s ease all;
-    outline: none;
-
-    &:disabled {
-        background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    &:hover:not([disabled]) {
-        cursor: pointer;
-    }
-`
+import { useFocus } from '../context/FocusContext'
+import luhn from 'luhn'
 
 interface CardFormProps {
     $cardFormStyle?: any
     creditCardDetails: ICreditCard
     creditCardType?: any
     isFormValid: boolean
-    onUpdateCreditCardDetails: (key: string, value: string) => void
+    onUpdateCreditCardDetails: (name: keyof ICreditCard, value: string) => void
 }
 
 const CardForm = ({
@@ -111,21 +30,123 @@ const CardForm = ({
     onUpdateCreditCardDetails,
 }: CardFormProps) => {
     const { setFocus } = useFocus()
+    const [validationError, setValidationError] = useState<string>('')
+    const [networkError, setNetworkError] = useState<string>('')
 
     const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target
-        onUpdateCreditCardDetails(name, value)
+        setValidationError('')
+        onUpdateCreditCardDetails(name as keyof ICreditCard, value)
+    }
+
+    function validateCreditCard(details: ICreditCard) {
+        const { cardNumber, cardHolder, validThru, cardCvv, cardIssuer } =
+            details
+
+        // @ts-ignore: ts(2345)
+        if (!allowedCreditCardTypes.includes(cardIssuer)) {
+            return false
+        }
+
+        // Card Number validation using Luhn algorithm
+        if (!luhn.validate(cardNumber)) {
+            return false
+        }
+
+        // Cardholder Name validation
+        if (/[^\p{L}\s\-']+/gu.test(cardHolder)) {
+            return false
+        }
+
+        // Valid Thru (Expiration Date) validation
+        const validThruRegex = /^(0[1-9]|1[0-2])\/(\d{2})$/
+        if (!validThruRegex.test(validThru)) {
+            return false
+        }
+
+        // @ts-ignore ts(2531)
+        const [expirationMonth, expirationYear] = validThru
+            .match(/\d+/g)
+            .map(Number)
+        const currentDate = new Date()
+        const currentYear = currentDate.getFullYear() % 100 // Get the last two digits of the current year
+        const currentMonth = currentDate.getMonth() + 1
+
+        if (
+            expirationYear < currentYear ||
+            (expirationYear === currentYear &&
+                expirationMonth < currentMonth) ||
+            expirationMonth < 1 ||
+            expirationMonth > 12
+        ) {
+            return false
+        }
+
+        // CVV (Card Verification Value) validation
+        if (!/^\d{3,4}$/.test(cardCvv)) {
+            return false
+        }
+
+        return true // All validations passed
+    }
+
+    const handleSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ): Promise<void> => {
+        e.preventDefault()
+
+        // Validate credit card details
+        const isCreditCardValid = validateCreditCard(creditCardDetails)
+
+        if (!isCreditCardValid) {
+            setValidationError(
+                'Invalid credit card details. Please check and try again.'
+            )
+        } else {
+            setValidationError('')
+        }
+
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        try {
+            const response = await fetch('/post/payment', {
+                method: 'post',
+                body: formData,
+            })
+
+            if (!response.ok) {
+                // Check if the response status is not in the 200-299 range (e.g., 404, 500)
+                throw new Error(
+                    `HTTP Error: ${response.status} - ${response.statusText}`
+                )
+            }
+
+            const responseData = await response.json()
+            console.log('response', responseData)
+        } catch (error: any) {
+            if (error instanceof TypeError) {
+                console.error('Network error:', error.message)
+            } else {
+                console.error('Error:', error.message)
+            }
+
+            if (!validationError) {
+                setNetworkError(error.message)
+            }
+        }
     }
 
     return (
         <CardFormWrapper $style={$cardFormStyle}>
-            <Form action="/post/payment" method="post">
+            <Form onSubmit={handleSubmit}>
                 <input
                     hidden
                     id="cardIssuer"
                     name="cardIssuer"
                     type="text"
                     value={creditCardDetails.cardIssuer}
+                    readOnly
                 />
                 <Label htmlFor="cardHolder">
                     <Input
@@ -187,6 +208,12 @@ const CardForm = ({
                 <Button type="submit" disabled={!isFormValid}>
                     Pay
                 </Button>
+                {validationError && (
+                    <ValidationError>{validationError}</ValidationError>
+                )}
+                {networkError && (
+                    <ValidationError>{networkError}</ValidationError>
+                )}
             </Form>
         </CardFormWrapper>
     )

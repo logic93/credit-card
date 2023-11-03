@@ -2,22 +2,61 @@ const removeIdenticalLetters = (
     str: string,
     maxConsecutive: number = 3
 ): string => {
-    let modifiedStr = ''
+    const modifiedStrArr = []
     let count = 1
 
     for (let i = 0; i < str.length; i++) {
-        if (i > 0 && str[i] === str[i - 1] && /[a-z]/.test(str[i])) {
-            count++
-        } else {
-            count = 1
-        }
+        const currentChar = str[i]
 
-        if (count <= maxConsecutive || !/[a-z]/.test(str[i])) {
-            modifiedStr += str[i]
+        // Check if the current character is a lowercase letter
+        if (/[a-z]/.test(currentChar)) {
+            if (i > 0 && currentChar === str[i - 1]) {
+                count++
+            } else {
+                count = 1
+            }
+
+            // If count is within the limit, add the character to the result
+            if (count <= maxConsecutive) {
+                // For memory optimization, instead of concatenating strings using +=, which creates a new string each time,
+                // a better practice is using an array to store the characters and then join them into a string at the end.
+                modifiedStrArr.push(currentChar)
+            }
+        } else {
+            // If it's not a lowercase letter, add it to the result
+            modifiedStrArr.push(currentChar)
+            count = 1 // Reset count for non-letter characters
         }
     }
 
-    return modifiedStr
+    return modifiedStrArr.join('')
+}
+
+const parallelRemoveIdenticalLetters = async (
+    inputString: string,
+    maxConsecutive: number = 3,
+    chunkSize: number = 150000
+): Promise<string> => {
+    const inputLength = inputString.length
+    const numChunks = Math.ceil(inputLength / chunkSize)
+
+    const processChunk = async (chunk: string): Promise<string> => {
+        return removeIdenticalLetters(chunk, maxConsecutive)
+    }
+
+    const chunkPromises: Promise<string>[] = []
+
+    for (let i = 0; i < numChunks; i++) {
+        const start = i * chunkSize
+        const end = (i + 1) * chunkSize
+        const chunk = inputString.slice(start, end)
+
+        chunkPromises.push(processChunk(chunk))
+    }
+
+    const processedChunks = await Promise.all(chunkPromises)
+
+    return processedChunks.join('')
 }
 
 function maximumOddSum(numbers: number[]): number | undefined {
@@ -39,4 +78,4 @@ function maximumOddSum(numbers: number[]): number | undefined {
     return maxOddSum > -1 ? maxOddSum : undefined
 }
 
-export { removeIdenticalLetters, maximumOddSum }
+export { removeIdenticalLetters, maximumOddSum, parallelRemoveIdenticalLetters }

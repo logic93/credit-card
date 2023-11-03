@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react'
-import styled, { css } from 'styled-components'
-import creditCardType, { types as CardType } from 'credit-card-type'
+import { allowedCreditCardTypes } from './utils'
 import { ICreditCard } from './types'
+import { useCallback, useState } from 'react'
 import Card from './components/Card'
 import CardForm from './components/CardForm'
+import creditCardType from 'credit-card-type'
+import styled, { css } from 'styled-components'
 
 const Wrapper = styled.div<{ $style?: any }>`
     display: flex;
@@ -35,12 +36,13 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
         '**** **** **** ****'
     )
 
-    const allowedCreditCardTypes = [
-        CardType.VISA,
-        CardType.MASTERCARD,
-        CardType.AMERICAN_EXPRESS,
-        CardType.MAESTRO,
-    ]
+    const updateCardIssuer = (issuer: string): string => {
+        return issuer
+    }
+
+    const updateCardHolder = (value: string): string => {
+        return value.replace(/[^\p{L}\s\-']+/gu, '')
+    }
 
     const updateCardNumber = (value: string): string => {
         let cardNumberInput = value.replace(/[^0-9]/g, '')
@@ -119,24 +121,29 @@ const CreditCard = ({ $style, $cardFormStyle }: CreditCardProps) => {
     }
 
     const updateCreditCardDetails = useCallback(
-        (fieldName: string, value: string) => {
+        (fieldName: keyof ICreditCard, value: string) => {
             const updatedCreditCardDetails = {
                 ...creditCardDetails,
                 [fieldName]: value || '',
             }
 
+            if (fieldName === 'cardHolder') {
+                updatedCreditCardDetails[fieldName] =
+                    updateCardHolder(value) || ''
+            }
+
             if (fieldName === 'cardNumber') {
-                updatedCreditCardDetails['cardNumber'] =
+                updatedCreditCardDetails[fieldName] =
                     updateCardNumber(value) || ''
             }
 
             if (fieldName === 'validThru') {
-                updatedCreditCardDetails['validThru'] =
+                updatedCreditCardDetails[fieldName] =
                     updateValidThru(value) || ''
             }
 
             if (fieldName === 'cardCvv') {
-                updatedCreditCardDetails['cardCvv'] = updateCardCvv(value) || ''
+                updatedCreditCardDetails[fieldName] = updateCardCvv(value) || ''
             }
 
             updatedCreditCardDetails['cardIssuer'] =
