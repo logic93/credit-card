@@ -70,7 +70,7 @@ const App = () => {
                 />
             </div>
 
-            <Themes>
+            {/* <Themes>
                 <ThemeButton id={THEME_COLORS['light']} onClick={handleTheme}>
                     <Box
                         before={bgColor === THEME_COLORS['light'] ? '■' : '□'}
@@ -84,7 +84,7 @@ const App = () => {
                     ></Box>
                     <Text>Dark</Text>
                 </ThemeButton>
-            </Themes>
+            </Themes> */}
         </FocusProvider>
     )
 }
