@@ -56,7 +56,7 @@ export const CardInfo = styled.div<{ $cardInfoStyle?: any }>`
     ${({ $cardInfoStyle }) => $cardInfoStyle && css($cardInfoStyle)}
 
     @media (max-width: 393px) {
-        width: 280px;
+        width: 300px;
 
         ${CardNumber} {
             font-size: 21px;

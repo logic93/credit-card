@@ -21,7 +21,7 @@ export const CardFormWrapper = styled.div<{ $style: any }>`
     }
 
     @media (max-width: 393px) {
-        width: calc(280px + 10px);
+        width: calc(300px + 10px);
     }
 
     @media (max-width: 350px) {
