@@ -3,11 +3,12 @@ import {
     BottomInputs,
     Button,
     CardFormWrapper,
-    ValidationError,
     Form,
+    FormHeading,
     Input,
     Label,
     Span,
+    ValidationError,
 } from './styles/card-form-styles'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { ICreditCard } from '../types'
@@ -139,6 +140,7 @@ const CardForm = ({
 
     return (
         <CardFormWrapper $style={$cardFormStyle}>
+            <FormHeading>Payment Information</FormHeading>
             <Form onSubmit={handleSubmit}>
                 <input
                     hidden
@@ -208,13 +210,11 @@ const CardForm = ({
                 <Button type="submit" disabled={!isFormValid}>
                     Pay
                 </Button>
-                {validationError && (
-                    <ValidationError>{validationError}</ValidationError>
-                )}
-                {networkError && (
-                    <ValidationError>{networkError}</ValidationError>
-                )}
             </Form>
+            {validationError && (
+                <ValidationError>{validationError}</ValidationError>
+            )}
+            {networkError && <ValidationError>{networkError}</ValidationError>}
         </CardFormWrapper>
     )
 }

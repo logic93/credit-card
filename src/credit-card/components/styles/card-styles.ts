@@ -12,63 +12,6 @@ export const CardWrapper = styled.div<{ $style?: any }>`
     color: #fff;
 `
 
-export const CardInfo = styled.div<{ $cardInfoStyle?: any }>`
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    position: relative;
-    width: 310px;
-    height: 185px;
-    padding: 1em 1.3em;
-    transition:
-        600ms ease transform,
-        0.3s linear background,
-        0.3s linear color;
-    transform-style: preserve-3d;
-    ${({ $cardInfoStyle }) => $cardInfoStyle && css($cardInfoStyle)}
-
-    @media (max-width: 375px) {
-        padding: 0;
-    }
-`
-
-export const CardItem = styled.div<{ $cardItemStyle?: any }>`
-    width: 100%;
-    height: 100%;
-    background: #343434;
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 1;
-    backface-visibility: hidden;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    ${({ $cardItemStyle }) => $cardItemStyle && css($cardItemStyle)}
-`
-
-export const Front = styled(CardItem)`
-    transition: 300ms ease-in-out transform;
-`
-
-export const Back = styled(CardItem)`
-    transform: rotateY(180deg);
-`
-
-export const Chip = styled.img`
-    position: absolute;
-    top: 1em;
-    height: 32px;
-    left: 1.3em;
-`
-
-export const Issuer = styled.img`
-    position: absolute;
-    top: 1em;
-    height: 42px;
-    right: 1.3em;
-`
-
 export const CardNumber = styled.div`
     position: absolute;
     bottom: 3em;
@@ -94,6 +37,80 @@ export const CardHolder = styled.div`
 export const ValidThru = styled.div`
     position: absolute;
     bottom: 1em;
+    right: 1.3em;
+`
+
+export const CardInfo = styled.div<{ $cardInfoStyle?: any }>`
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative;
+    width: 310px;
+    height: 185px;
+    padding: 1em 1.3em;
+    transition:
+        600ms ease transform,
+        0.3s linear background,
+        0.3s linear color;
+    transform-style: preserve-3d;
+    ${({ $cardInfoStyle }) => $cardInfoStyle && css($cardInfoStyle)}
+
+    @media (max-width: 375px) {
+        width: 280px;
+
+        ${CardNumber} {
+            font-size: 21px;
+        }
+    }
+
+    @media (max-width: 350px) {
+        width: 250px;
+
+        ${CardNumber} {
+            font-size: 19px;
+        }
+
+        ${CardHolder},
+        ${ValidThru} {
+            font-size: 18px;
+        }
+    }
+`
+
+export const CardItem = styled.div<{ $cardItemStyle?: any }>`
+    width: 100%;
+    height: 100%;
+    background: #343434;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1;
+    backface-visibility: hidden;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    ${({ $cardItemStyle }) => $cardItemStyle && css($cardItemStyle)}
+`
+
+export const Front = styled(CardItem)`
+    transition: 300ms ease-in-out transform;
+`
+
+export const Back = styled(CardItem)`
+    transform: rotateY(180deg);
+`
+
+export const Chip = styled.img`
+    position: absolute;
+    top: 1em;
+    height: 32px;
+    left: 1.3em;
+`
+
+export const Issuer = styled.img`
+    position: absolute;
+    top: 1em;
+    height: 42px;
     right: 1.3em;
 `
 

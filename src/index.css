@@ -8,6 +8,31 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Petra Sans';
+    src:
+        url('/src/assets/fonts/PetraSans-Bold.woff2') format('woff2'),
+        url('/src/assets/fonts/PetraSans-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Petra Sans';
+    src:
+        url('/src/assets/fonts/PetraSans-Regular.woff2') format('woff2'),
+        url('/src/assets/fonts/PetraSans-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
 html,
 body {
     font-family:
@@ -22,7 +47,7 @@ body {
         'Open Sans',
         'Helvetica Neue',
         sans-serif;
-    margin: 0;
+    transition: 0.2s ease background-color;
 }
 
 .App {

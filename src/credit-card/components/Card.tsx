@@ -85,7 +85,7 @@ const Card = ({
                     $cardItemStyle={{
                         background:
                             creditCardType?.type &&
-                            'linear-gradient(25deg, #FFF, #eee)',
+                            'linear-gradient(25deg, #fff, #eee)',
                     }}
                 >
                     <Chip src={getSVGImage('chip')} alt="chip" />
