@@ -15,6 +15,8 @@ import {
 } from './styles/card-styles'
 import { ICreditCard } from '../types'
 import { useFocus } from '../context/FocusContext'
+import { getSVGImage } from '../utils'
+const imgUrl = new URL('./assets/img.png', import.meta.url).href
 
 interface CardProps {
     creditCardDetails: ICreditCard
@@ -86,10 +88,10 @@ const Card = ({
                             'linear-gradient(25deg, #FFF, #eee)',
                     }}
                 >
-                    <Chip src="chip.svg" alt="chip" />
+                    <Chip src={getSVGImage('chip')} alt="chip" />
                     {creditCardType?.type && (
                         <Issuer
-                            src={`${creditCardType?.type}.svg`}
+                            src={getSVGImage(creditCardType?.type)}
                             alt="issuer"
                         />
                     )}

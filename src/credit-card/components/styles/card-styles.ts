@@ -76,6 +76,7 @@ export const CardNumber = styled.div`
     right: 0;
     margin: 0 1.2em;
     text-align: start;
+    font-size: 23px;
 `
 
 export const CardHolder = styled.div`

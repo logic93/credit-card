@@ -7,4 +7,8 @@ const allowedCreditCardTypes = [
     CardType.MAESTRO, // Starts with 50, 56, 57, 58, 6013, 62, 63, or 67
 ]
 
-export { allowedCreditCardTypes }
+const getSVGImage = (name: string) => {
+    return new URL(`/src/assets/images/${name}.svg`, import.meta.url).href
+}
+
+export { allowedCreditCardTypes, getSVGImage }
