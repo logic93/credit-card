@@ -29,6 +29,8 @@
 }
 
 * {
+    margin: 0;
+    padding: 0;
 }
 
 html,
@@ -45,12 +47,15 @@ body {
         'Open Sans',
         'Helvetica Neue',
         sans-serif;
-    margin: 0;
-    padding: 0;
-    /* transition: 0.2s ease background-color; */
+    transition: 0.2s ease background-color;
 }
 
 .App {
     width: 100vw;
     height: 100vh;
+
+    @media (max-width: 425px) {
+        height: 100%;
+        margin: 3em 0 4em 0;
+    }
 }

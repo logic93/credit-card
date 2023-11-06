@@ -14,8 +14,8 @@ const App = () => {
     const Themes = styled.div`
         z-index: 10;
         position: fixed;
-        left: calc(max(34px, 2vmin) - 0.15em);
-        bottom: max(24px, 2vmin);
+        left: calc(max(24px, 2vmin) - 0.15em);
+        bottom: max(14px, 1vmin);
         transform-origin: left bottom;
         transform: rotate(-90deg);
         mix-blend-mode: difference;
@@ -36,11 +36,12 @@ const App = () => {
 
     const Box = styled.div<{ before?: any }>`
         &:before {
+            font-size: 12px;
             content: '${(props) => props.before}'
     `
 
     const Text = styled.div`
-        font-size: 16px;
+        font-size: 12px;
         letter-spacing: 0.3px;
     `
 
@@ -70,7 +71,7 @@ const App = () => {
                 />
             </div>
 
-            {/* <Themes>
+            <Themes>
                 <ThemeButton id={THEME_COLORS['light']} onClick={handleTheme}>
                     <Box
                         before={bgColor === THEME_COLORS['light'] ? '■' : '□'}
@@ -84,7 +85,7 @@ const App = () => {
                     ></Box>
                     <Text>Dark</Text>
                 </ThemeButton>
-            </Themes> */}
+            </Themes>
         </FocusProvider>
     )
 }

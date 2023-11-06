@@ -55,7 +55,7 @@ export const CardInfo = styled.div<{ $cardInfoStyle?: any }>`
     transform-style: preserve-3d;
     ${({ $cardInfoStyle }) => $cardInfoStyle && css($cardInfoStyle)}
 
-    @media (max-width: 375px) {
+    @media (max-width: 393px) {
         width: 280px;
 
         ${CardNumber} {
@@ -88,7 +88,7 @@ export const CardItem = styled.div<{ $cardItemStyle?: any }>`
     overflow: hidden;
     z-index: 1;
     backface-visibility: hidden;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
     ${({ $cardItemStyle }) => $cardItemStyle && css($cardItemStyle)}
 `
 
